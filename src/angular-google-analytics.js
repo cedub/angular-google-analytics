@@ -343,6 +343,7 @@ angular.module('angular-google-analytics', [])
                 getUrl: getUrl,
                 experimentId: experimentId,
                 ignoreFirstPageLoad: ignoreFirstPageLoad,
+                globalDimensions: globalDimensions,
                 trackPage: function(url) {
                     // add a page event
                     me._trackPage(url);
