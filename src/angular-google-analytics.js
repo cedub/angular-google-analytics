@@ -170,7 +170,7 @@ angular.module('angular-google-analytics', [])
               $window._gaq.push(['_trackEvent', category, action, label, value]);
               this._log('trackEvent', arguments);
             } else if ($window.ga) {
-              if angular.isDefined(dimensions) {
+              if (typeof dimensions !== 'undefined') {
                 $window.ga('send', 'event', category, action, label, value, dimensions);
               } else {
                 $window.ga('send', 'event', category, action, label, value);
