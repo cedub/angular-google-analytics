@@ -16,7 +16,8 @@ angular.module('angular-google-analytics', [])
             enhancedLinkAttribution = false,
             removeRegExp,
             experimentId,
-            ignoreFirstPageLoad = false;
+            ignoreFirstPageLoad = false,
+            globalDimensions = null;
 
           this._logs = [];
 
@@ -80,6 +81,15 @@ angular.module('angular-google-analytics', [])
 
           this.ignoreFirstPageLoad = function (val) {
             ignoreFirstPageLoad = !!val;
+          };
+
+          this.setGlobalDimensions = function (obj) {
+            globalDimensions = obj;
+            return true;
+          };
+
+          this.getGlobalDimensions = function () {
+            return globalDimensions;
           };
 
         // public service
@@ -156,25 +166,43 @@ angular.module('angular-google-analytics', [])
             //console.info('analytics log:', arguments);
             this._logs.push(arguments);
           };
-          this._trackPage = function(url) {
+          this._trackPage = function(url, currentDimensions) {
             if (trackRoutes && !analyticsJS && $window._gaq) {
               $window._gaq.push(['_trackPageview', trackPrefix + url]);
               this._log('_trackPageview', arguments);
             } else if (trackRoutes && analyticsJS && $window.ga) {
-              $window.ga('send', 'pageview', trackPrefix + url);
+              var dimensions = {};
+              if (globalDimensions !== null) {
+                for (var globalDim in globalDimensions) {
+                  dimensions[globalDim] = globalDimensions[globalDim];
+                }
+              }
+              if (typeof currentDimensions !== 'undefined') {
+                for (var currDim in currentDimensions) {
+                  dimensions[currDim] = currentDimensions[currDim];
+                }
+              }
+              $window.ga('send', 'pageview', trackPrefix + url, dimensions);
               this._log('pageview', arguments);
             }
           };
-          this._trackEvent = function(category, action, label, value, dimensions) {
+          this._trackEvent = function(category, action, label, value, currentDimensions) {
             if (!analyticsJS && $window._gaq) {
               $window._gaq.push(['_trackEvent', category, action, label, value]);
               this._log('trackEvent', arguments);
             } else if ($window.ga) {
-              if (typeof dimensions !== 'undefined') {
-                $window.ga('send', 'event', category, action, label, value, dimensions);
-              } else {
-                $window.ga('send', 'event', category, action, label, value);
+              var dimensions = {};
+              if (globalDimensions !== null) {
+                for (var globalDim in globalDimensions) {
+                  dimensions[globalDim] = globalDimensions[globalDim];
+                }
               }
+              if (typeof currentDimensions !== 'undefined') {
+                for (var currDim in currentDimensions) {
+                  dimensions[currDim] = currentDimensions[currDim];
+                }
+              }
+              $window.ga('send', 'event', category, action, label, value, dimensions);
               this._log('event', arguments);
             }
 
