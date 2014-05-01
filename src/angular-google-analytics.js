@@ -165,12 +165,16 @@ angular.module('angular-google-analytics', [])
               this._log('pageview', arguments);
             }
           };
-          this._trackEvent = function(category, action, label, value) {
+          this._trackEvent = function(category, action, label, value, dimensions) {
             if (!analyticsJS && $window._gaq) {
               $window._gaq.push(['_trackEvent', category, action, label, value]);
               this._log('trackEvent', arguments);
             } else if ($window.ga) {
-              $window.ga('send', 'event', category, action, label, value);
+              if angular.isDefined(dimensions) {
+                $window.ga('send', 'event', category, action, label, value, dimensions);
+              } else {
+                $window.ga('send', 'event', category, action, label, value);
+              }
               this._log('event', arguments);
             }
 
